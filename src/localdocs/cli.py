@@ -153,5 +153,22 @@ def generate(
     console.print(Panel(f"[bold green]✓ Complete multi-language project manual safely built and stored at: {output}[/bold green]"))
 
 
+@app.command()
+def serve(
+    file: str = typer.Option("docs.md", "--file", "-f", help="Target documentation file path to render"),
+    port: int = typer.Option(8080, "--port", "-p", help="Port network socket target binding configuration")
+):
+    """Launch the LocalDocs Live Web Studio Engine dashboard server platform"""
+    import uvicorn
+    import os
+    
+    console.print(Panel("🚀 [bold green]Initializing LocalDocs Live Web Studio Engine...[/bold green]"))
+    console.print(f"Reading documentation source map: [bold cyan]{file}[/bold cyan]")
+    console.print(f"Local Host Address URL target: [bold link]http://127.0.0.1:{port}[/bold link]\n")
+    
+    os.environ["LOCALDOCS_FILE"] = file
+    uvicorn.run("localdocs.api.server:app", host="127.0.0.1", port=port, log_level="info", reload=False)
+
+
 if __name__ == "__main__":
     app()
