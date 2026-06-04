@@ -1,4 +1,5 @@
 """API routes for LocalDocs AI"""
+import os
 from fastapi import APIRouter, HTTPException
 from localdocs.api.schemas import (
     GenerateDocsRequest,
@@ -35,7 +36,6 @@ async def health_check():
 @router.get("/api/v1/models")
 async def list_models():
     """List available Ollama models"""
-    # Safe placeholder until list_models is implemented in the client
     try:
         return {"models": [settings.default_model], "default": settings.default_model}
     except Exception as e:
@@ -44,39 +44,56 @@ async def list_models():
 
 @router.post("/api/v1/generate-docs", response_model=GenerateDocsResponse)
 async def generate_docs(request: GenerateDocsRequest):
-    """Generate documentation for code"""
+    """Generate documentation for code and save it physically to disk"""
     try:
-        # Parse code
+        # 1. Parse code architecture
         parser = PythonParser(request.code)
         elements = parser.parse()
-        
-        # Generate AI documentation using aligned client parameters
-        ai_docs = ollama_client.generate_docs(
-            code=request.code,
-            model=request.model
-        )
-        
-        # Combine parsed + AI docs
+
+        # 2. Generate AI documentation explanation block
+        try:
+            ai_docs = ollama_client.generate_docs(
+                code=request.code,
+                model=request.model
+            )
+        except Exception as ollama_err:
+            # Fallback text if Ollama engine is offline or unresponsive
+            ai_docs = f"Error: Failed to communicate with local LLM engine. Details: {str(ollama_err)}"
+
+        # 3. Combine parsed formatting + AI generation text blocks
         markdown = MarkdownGenerator.generate(elements, request.project_name)
         markdown += "\n\n## AI-Generated Documentation\n\n"
         markdown += ai_docs
-        
+
+        # 4. Save the Markdown file physically to the storage disk directory
+        try:
+            os.makedirs(settings.storage_dir, exist_ok=True)
+            # Sanitize the project name to create a safe filename
+            safe_filename = f"{request.project_name.lower().replace(' ', '_')}_docs.md"
+            file_path = os.path.join(settings.storage_dir, safe_filename)
+            
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(markdown)
+        except Exception as file_err:
+            # System logs the file write error but doesn't break the response loop
+            print(f"File Storage Warning: Failed to save markdown to disk. Details: {file_err}")
+
         return GenerateDocsResponse(
             success=True,
             documentation=markdown,
             elements_count=len(elements),
             model_used=request.model or settings.default_model
         )
-        
+
     except ConnectionError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal system processing error: {str(e)}")
 
 
 @router.post("/api/v1/parse-code")
 async def parse_code(code: str, language: str = "python"):
-    """Parse code without generating docs"""
+    """Parse code structural elements without triggering local LLM generation"""
     if language.lower() == "python":
         parser = PythonParser(code)
         elements = parser.parse()

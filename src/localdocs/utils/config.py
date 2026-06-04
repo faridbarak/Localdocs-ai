@@ -1,23 +1,27 @@
-"""Application configuration settings using Pydantic"""
+"""Configuration settings for LocalDocs AI"""
 from pydantic_settings import BaseSettings
-from typing import Optional
+
 
 class Settings(BaseSettings):
-    # App Settings
     app_name: str = "LocalDocs AI"
-    app_version: str = "0.1.0"
-    log_level: str = "INFO"
+    app_version: str = "1.0.0"
+    debug: bool = False
     
-    # LLM / Ollama Settings
-    ollama_base_url: str = "http://localhost:11434"
-    default_model: str = "llama3"
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_default_model: str = "qwen2:0.5b"  # Perfectly aligned with your local model targets
     
-    # Storage Settings
+    # Fallback aliases to protect parallel modules
+    default_model: str = "qwen2:0.5b"
     storage_dir: str = "./data"
-
+    
+    host: str = "0.0.0.0"
+    port: int = 8000
+    log_level: str = "INFO"
+    data_dir: str = "./data"
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-# Instantiate a global settings object
+
 settings = Settings()
