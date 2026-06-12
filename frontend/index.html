@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalDocs AI - Enterprise AI App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; text-align: center; margin-bottom: 10px; font-size: 2.5em; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .api-url-section { background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        .api-url-section label { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        #apiUrl { width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 5px; }
+        .input-section { margin-bottom: 20px; }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+        button:disabled { background: #999; cursor: not-allowed; transform: none; }
+        .output-section { margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .output-section h3 { color: #667eea; margin-bottom: 10px; }
+        #output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #333;
+        }
+        .loading { color: #667eea; text-align: center; font-weight: bold; }
+        .error { color: #e74c3c; background: #ffeaea; padding: 10px; border-radius: 5px; border: 1px solid #e74c3c; }
+        .success { color: #27ae60; }
+        .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; }
+        .feature { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 15px; border-radius: 8px; text-align: center; }
+        .feature h4 { color: #667eea; margin-bottom: 5px; }
+        .feature p { color: #666; font-size: 13px; }
+        .hackathon-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 20px auto;
+            font-weight: bold;
+            text-align: center;
+        }
+        .endpoint-info { background: #e8f4f8; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 LocalDocs AI</h1>
+        <p class="subtitle">Enterprise AI Application with Security Features</p>
+        
+        <div class="hackathon-badge">🏆 Uzbekistan Hackathon 2026</div>
+
+        <div class="api-url-section">
+            <label for="apiUrl">🔗 Your Render API URL:</label>
+            <input type="text" id="apiUrl" 
+                   placeholder="https://your-app-name.onrender.com"
+                   value="https://your-app-name.onrender.com">
+            <div class="endpoint-info">
+                ✅ Using endpoint: <strong>/api/v1/generate-docs</strong><br>
+                📤 Sends: <strong>code</strong> (Python code to analyze)
+            </div>
+        </div>
+
+        <div class="input-section">
+            <label for="inputCode" style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;">
+                📝 Enter Python Code (Test AI Documentation):
+            </label>
+            <textarea id="inputCode" placeholder="Paste Python code here...
+
+Example:
+def hello():
+    print('Hello World')
+    
+class MyClass:
+    def __init__(self):
+        self.value = 42"></textarea>
+        </div>
+
+        <button onclick="generateDocs()" id="submitBtn">
+            🔍 Generate Documentation with LocalDocs AI
+        </button>
+
+        <div class="output-section">
+            <h3>📊 Output:</h3>
+            <div id="output">Results will appear here after generating documentation...</div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h4>🔐 Prompt Injection Protection</h4>
+                <p>Detects and blocks malicious prompts</p>
+            </div>
+            <div class="feature">
+                <h4>⚡ Rate Limiting</h4>
+                <p>Prevents API abuse</p>
+            </div>
+            <div class="feature">
+                <h4>🛡️ Input Validation</h4>
+                <p>Sanitizes all user inputs</p>
+            </div>
+            <div class="feature">
+                <h4>📤 Output Sanitizer</h4>
+                <p>Cleans AI responses</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateDocs() {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const inputCode = document.getElementById('inputCode').value.trim();
+            const outputDiv = document.getElementById('output');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!apiUrl) {
+                outputDiv.innerHTML = '<div class="error">❌ Please enter your Render API URL</div>';
+                return;
+            }
+
+            if (!inputCode) {
+                outputDiv.innerHTML = '<div class="error">❌ Please enter Python code to analyze</div>';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Generating Documentation...';
+            outputDiv.innerHTML = '<div class="loading">🔄 Sending code to LocalDocs AI...</div>';
+
+            try {
+                const endpoint = `${apiUrl}/api/v1/generate-docs`;
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: inputCode })
+                });
+
+                if (!response.ok) {
+                    outputDiv.innerHTML = `<div class="error">
+                        ❌ API Error: ${response.status}<br>
+                        <small>Make sure your Render app is running and URL is correct</small>
+                    </div>`;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🔍 Generate Documentation with LocalDocs AI';
+                    return;
+                }
+
+                const data = await response.json();
+                
+                outputDiv.innerHTML = `<div class="success">
+                    <strong>✅ Documentation Generated Successfully!</strong><br><br>
+                    ✔ Success: ${data.success}<br>
+                    ✔ Elements Found: ${data.elements_count}<br>
+                    ✔ Documentation: ${data.documentation}<br><br>
+                    <strong>Elements:</strong><br>
+                    ${data.elements.map(e => `
+                        <div style="background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 3px;">
+                            <strong>${e.name}</strong> (${e.type})<br>
+                            <small>${e.description || 'No description'}</small>
+                        </div>
+                    `).join('')}
+                </div>`;
+
+            } catch (error) {
+                outputDiv.innerHTML = `<div class="error">
+                    ❌ Network Error:<br>
+                    <small>${error.message}</small><br><br>
+                    <strong>Check:</strong><br>
+                    1. Render app is running<br>
+                    2. URL is correct (https://...)<br>
+                    3. CORS is enabled in your FastAPI app
+                </div>`;
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🔍 Generate Documentation with LocalDocs AI';
+        }
+
+        console.log('💡 If you get CORS errors, add this to src/main.py:');
+        console.log('from fastapi.middleware.cors import CORSMiddleware');
+        console.log('app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])');
+    </script>
+</body>
+</html>
+
+

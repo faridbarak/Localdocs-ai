@@ -1,0 +1,13 @@
+[project]
+name = "localdocs-ai"
+version = "1.0.0"
+description = "LocalDocs AI CLI"
+requires-python = ">=3.11"
+dependencies = ["typer>=0.12"]
+
+[project.scripts]
+localdocs = "localdocs.cli:app"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

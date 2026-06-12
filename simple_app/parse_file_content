@@ -1,0 +1,60 @@
+import ast
+from pathlib import Path
+import typer
+
+def parse_file_content(file_path: str, language: str):
+    source_path = Path(file_path)
+    code = source_path.read_text(encoding="utf-8")
+    tree = ast.parse(code, filename=str(source_path))
+
+    result = {
+        "file": str(source_path),
+        "language": language,
+        "length": len(code),
+        "preview": code[:200],
+        "module_docstring": ast.get_docstring(tree),
+        "imports": [],
+        "functions": [],
+        "classes": [],
+    }
+
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                result["imports"].append({
+                    "type": "import",
+                    "name": alias.name,
+                    "alias": alias.asname,
+                })
+
+        elif isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                result["imports"].append({
+                    "type": "from",
+                    "module": node.module or "",
+                    "name": alias.name,
+                    "alias": alias.asname,
+                })
+
+        elif isinstance(node, ast.FunctionDef):
+            result["functions"].append({
+                "name": node.name,
+                "docstring": ast.get_docstring(node),
+            })
+
+        elif isinstance(node, ast.ClassDef):
+            methods = []
+            for item in node.body:
+                if isinstance(item, ast.FunctionDef):
+                    methods.append({
+                        "name": item.name,
+                        "docstring": ast.get_docstring(item),
+                    })
+
+            result["classes"].append({
+                "name": node.name,
+                "docstring": ast.get_docstring(node),
+                "methods": methods,
+            })
+
+    return result
